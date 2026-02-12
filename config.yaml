@@ -1,0 +1,253 @@
+# AI-Driven Vehicle Damage Detection System Configuration
+
+# System Settings
+system:
+  device: "mps"  # Metal Performance Shaders for M4 Pro
+  device_fallback: "cpu"
+  random_seed: 42
+  num_workers: 4
+  pin_memory: true
+
+# Paths
+paths:
+  data_dir: "data"
+  models_dir: "models"
+  outputs_dir: "outputs"
+  logs_dir: "logs"
+  
+# Dataset Configuration
+dataset:
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  image_size: 640
+  batch_size: 16
+  shuffle: true
+  
+  # Damage Categories
+  damage_classes:
+    - scratch
+    - dent
+    - crack
+    - paint_damage
+    - broken_part
+  
+  # Severity Levels
+  severity_levels:
+    - low
+    - medium
+    - high
+  
+  # Vehicle Parts (for part identification)
+  vehicle_parts:
+    - hood
+    - front_bumper
+    - rear_bumper
+    - left_door
+    - right_door
+    - windshield
+    - headlight
+    - taillight
+    - fender
+    - mirror
+    - wheel
+    - roof
+
+# Data Augmentation
+augmentation:
+  train:
+    horizontal_flip: 0.5
+    vertical_flip: 0.0
+    rotation_limit: 15
+    brightness_limit: 0.2
+    contrast_limit: 0.2
+    blur_limit: 3
+    noise_prob: 0.3
+    occlusion_prob: 0.2
+  
+  val:
+    enabled: false
+  
+  test:
+    enabled: false
+
+# YOLOv8 Detection Model
+detection:
+  model_name: "yolov8m-seg.pt"  # Medium model, good balance
+  pretrained: true
+  
+  # Training
+  epochs: 100
+  learning_rate: 0.001
+  optimizer: "Adam"
+  weight_decay: 0.0005
+  
+  # Inference
+  conf_threshold: 0.25
+  iou_threshold: 0.45
+  max_detections: 100
+  
+  # Image size
+  imgsz: 640
+
+# U-Net Segmentation Model
+segmentation:
+  architecture: "unetplusplus"
+  encoder: "resnet34"
+  encoder_weights: "imagenet"
+  in_channels: 3
+  classes: 1  # Binary segmentation (damage vs background)
+  
+  # Training
+  epochs: 50
+  batch_size: 8
+  learning_rate: 0.0001
+  optimizer: "Adam"
+  loss_function: "dice"
+  
+  # Image size for cropped regions
+  input_size: 256
+
+# Classification Model
+classification:
+  architecture: "efficientnet-b2"
+  pretrained: true
+  num_classes: 5  # Number of damage types
+  dropout: 0.3
+  
+  # Training
+  epochs: 30
+  batch_size: 32
+  learning_rate: 0.001
+  optimizer: "Adam"
+  scheduler: "ReduceLROnPlateau"
+  
+  # Image size
+  input_size: 224
+
+# Part Identification Model
+part_identification:
+  enabled: true
+  model_name: "yolov8s.pt"  # Smaller model for parts
+  conf_threshold: 0.3
+  
+# Severity Estimation
+severity:
+  method: "rule_based"  # Options: rule_based, ml_based
+  
+  # Area-based thresholds (percentage of vehicle part)
+  area_thresholds:
+    low: 0.05    # < 5% of part area
+    medium: 0.15  # 5-15% of part area
+    high: 0.15    # > 15% of part area
+  
+  # Length-based thresholds (for cracks/scratches in pixels)
+  length_thresholds:
+    low: 100
+    medium: 300
+    high: 300
+  
+  # Location weighting (critical areas get higher severity)
+  critical_parts:
+    - windshield
+    - headlight
+    - taillight
+    - structural_components
+  
+  critical_multiplier: 1.5
+
+# Cosmetic vs Functional Classification
+cosmetic_functional:
+  # Rule-based logic
+  cosmetic_types:
+    - scratch
+    - paint_damage
+  
+  functional_types:
+    - broken_part
+    - crack
+  
+  # Ambiguous type (depends on severity and location)
+  ambiguous_types:
+    - dent
+  
+  # Critical parts (damage here is functional)
+  critical_parts:
+    - windshield
+    - headlight
+    - taillight
+    - mirror
+
+# Explainability
+explainability:
+  gradcam:
+    enabled: true
+    target_layer: "layer4"  # For ResNet-based models
+    colormap: "jet"
+  
+  visualization:
+    show_masks: true
+    show_boxes: true
+    show_labels: true
+    show_confidence: true
+    overlay_alpha: 0.5
+    line_thickness: 2
+    font_scale: 0.6
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  reload: true
+  workers: 1
+  
+  # File upload
+  max_upload_size: 10485760  # 10 MB
+  allowed_extensions:
+    - jpg
+    - jpeg
+    - png
+    - bmp
+    - webp
+  
+  # Rate limiting
+  rate_limit: 100  # requests per minute
+  
+  # CORS
+  cors_enabled: true
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  save_to_file: true
+  log_file: "logs/damage_detection.log"
+
+# Evaluation Metrics
+metrics:
+  detection:
+    - mAP
+    - mAP50
+    - mAP75
+    - precision
+    - recall
+  
+  segmentation:
+    - IoU
+    - dice_coefficient
+    - pixel_accuracy
+  
+  classification:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - confusion_matrix
+  
+  severity:
+    - mae  # Mean Absolute Error
+    - rmse  # Root Mean Squared Error
+    - accuracy

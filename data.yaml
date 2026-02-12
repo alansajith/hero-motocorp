@@ -1,0 +1,21 @@
+# YOLO format dataset configuration for vehicle damage detection
+
+# Dataset paths (relative to this file)
+path: .  # Current directory
+train: data/train/images
+val: data/val/images
+test: data/test/images
+
+# Number of classes
+nc: 5
+
+# Class names
+names:
+  0: scratch
+  1: dent
+  2: crack
+  3: paint_damage
+  4: broken_part
+
+# Optional: Download script (if using external dataset)
+# download: bash scripts/download_dataset.sh

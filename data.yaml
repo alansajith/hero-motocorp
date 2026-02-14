@@ -7,15 +7,13 @@ val: data/val/images
 test: data/test/images
 
 # Number of classes
-nc: 5
+nc: 3
 
 # Class names
 names:
   0: scratch
   1: dent
-  2: crack
-  3: paint_damage
-  4: broken_part
+  2: damage
 
 # Optional: Download script (if using external dataset)
 # download: bash scripts/download_dataset.sh

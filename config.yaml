@@ -28,9 +28,7 @@ dataset:
   damage_classes:
     - scratch
     - dent
-    - crack
-    - paint_damage
-    - broken_part
+    - damage
   
   # Severity Levels
   severity_levels:
@@ -73,14 +71,17 @@ augmentation:
 
 # YOLOv8 Detection Model
 detection:
-  model_name: "yolov8m-seg.pt"  # Medium model, good balance
+  model_name: "yolov8l.pt"  # Large model for high accuracy
   pretrained: true
   
   # Training
-  epochs: 100
-  learning_rate: 0.001
-  optimizer: "Adam"
+  epochs: 150
+  learning_rate: 0.005
+  optimizer: "SGD"
   weight_decay: 0.0005
+  momentum: 0.937
+  warmup_epochs: 3
+  close_mosaic: 15
   
   # Inference
   conf_threshold: 0.25
@@ -112,7 +113,7 @@ segmentation:
 classification:
   architecture: "efficientnet-b2"
   pretrained: true
-  num_classes: 5  # Number of damage types
+  num_classes: 3  # Number of damage types (scratch, dent, damage)
   dropout: 0.3
   
   # Training
@@ -161,11 +162,9 @@ cosmetic_functional:
   # Rule-based logic
   cosmetic_types:
     - scratch
-    - paint_damage
   
   functional_types:
-    - broken_part
-    - crack
+    - damage  # includes cracks, broken/missing parts
   
   # Ambiguous type (depends on severity and location)
   ambiguous_types:

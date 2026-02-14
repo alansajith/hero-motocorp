@@ -14,11 +14,11 @@ class CosmeticFunctionalClassifier:
         config = get_config()
         
         self.cosmetic_types = config.get('cosmetic_functional.cosmetic_types', [
-            'scratch', 'paint_damage'
+            'scratch'
         ])
         
         self.functional_types = config.get('cosmetic_functional.functional_types', [
-            'broken_part', 'crack'
+            'damage'
         ])
         
         self.ambiguous_types = config.get('cosmetic_functional.ambiguous_types', [

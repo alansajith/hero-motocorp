@@ -65,7 +65,7 @@ class SeverityEstimator:
             area_ratio = damage_area / (mask.shape[0] * mask.shape[1])
         
         # Base severity score (0-1)
-        if damage_type in ['crack', 'scratch']:
+        if damage_type in ['scratch', 'damage']:
             # Use length-based thresholds
             if damage_length < self.length_thresholds['low']:
                 base_score = 0.2
